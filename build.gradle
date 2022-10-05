@@ -41,9 +41,9 @@ javafx {
 }
 
 dependencies {
-
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    implementation 'no.tornado:tornadofx:1.7.20'
 }
 
 test {
