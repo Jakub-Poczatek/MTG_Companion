@@ -44,6 +44,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     implementation 'no.tornado:tornadofx:1.7.20'
+    implementation ("io.github.microutils:kotlin-logging:2.1.23")
 }
 
 test {
