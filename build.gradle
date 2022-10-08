@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.20'
+    id 'org.jetbrains.kotlin.jvm' version '1.7.10'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id 'org.beryx.jlink' version '2.25.0'
 }
@@ -26,7 +26,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'org.setu.mtg_companion.mtg_companion'
-    mainClass = 'org.setu.mtg_companion.mtg_companion.HelloApplication'
+    mainClass = 'org.setu.mtg_companion.mtg_companion.main'
 }
 
 [compileKotlin, compileTestKotlin].forEach {
@@ -44,6 +44,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     implementation 'no.tornado:tornadofx:1.7.20'
+    implementation("org.slf4j:slf4j-simple:1.7.36")
     implementation ("io.github.microutils:kotlin-logging:2.1.23")
 }
 

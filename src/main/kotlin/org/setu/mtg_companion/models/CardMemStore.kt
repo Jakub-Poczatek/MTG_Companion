@@ -2,7 +2,7 @@ package org.setu.mtg_companion.models
 
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger{}
+private val logger = KotlinLogging.logger {}
 var lastId: Long = 0
 
 internal fun getNextId(): Long {
@@ -10,19 +10,20 @@ internal fun getNextId(): Long {
 }
 
 class CardMemStore : CardStore {
-    val cards = ArrayList<CardModel>()
+    private val cards = ArrayList<CardModel>()
 
     override fun createCard(card: CardModel) {
         card.id = getNextId()
         cards.add(card)
+        logOne(card)
     }
 
     override fun findACard(id: Long): CardModel? {
-        TODO("Not yet implemented")
+        return cards.find { c -> c.id == id }
     }
 
     override fun findAllCards(): List<CardModel> {
-        TODO("Not yet implemented")
+        return cards
     }
 
     override fun updateCard(card: CardModel) {
@@ -33,7 +34,11 @@ class CardMemStore : CardStore {
         TODO("Not yet implemented")
     }
 
-    internal fun logAll(){
-        cards.forEach {logger.info("${it}")}
+    private fun logAll(){
+        cards.forEach {logger.info("$it")}
+    }
+
+    private fun logOne(card: CardModel) {
+        logger.info("$card")
     }
 }

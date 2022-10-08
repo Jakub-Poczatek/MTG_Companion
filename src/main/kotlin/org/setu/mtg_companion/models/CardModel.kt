@@ -1,17 +1,16 @@
 package org.setu.mtg_companion.models
 
-class CardModel(
+data class CardModel(
     var id: Long = 0,
     var name: String = "",
     var type: String = "",
-    var attack: Short = 0,
-    var defence: Short = 0,
-    var neutralColNum: Int = 0,
-    var whiteColNum : Int = 0,
-    var blackColNum : Int = 0,
-    var redColNum : Int = 0,
-    var blueColNum : Int = 0,
-    var greenColNum : Int = 0,
+    var attack: Short = -1,
+    var defence: Short = -1,
+    var neutralColNum: Short = -1,
+    var whiteColNum: Short = -1,
+    var blackColNum: Short = -1,
+    var redColNum: Short = -1,
+    var blueColNum: Short = -1,
+    var greenColNum: Short = -1,
     var cardText: String = ""
-) {
-}
+)
