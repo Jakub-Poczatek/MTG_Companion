@@ -40,11 +40,13 @@ class CardMemStore : CardStore {
             foundCard.blueColNum = card.blueColNum
             foundCard.greenColNum = card.greenColNum
             foundCard.cardText = card.cardText
+            logOne(foundCard)
         }
     }
 
     override fun deleteCard(card: CardModel) {
-        TODO("Not yet implemented")
+        cards.remove(card)
+        logger.info("Card deleted...")
     }
 
     private fun logOne(card: CardModel) {

@@ -40,12 +40,12 @@ class MyView: View() {
         if(cardIsValid(card)
         ) {
             cardController.add(card)
-            listOne(card.id.toString())
+            listOneCardsData(card.id.toString())
             resetFields()
         } else logger.error("Card invalid, not created")
     }
 
-    private fun listAll(){
+    private fun listAllCardsData(){
         val cards = cardController.findAll()
         infoTextArea.clear()
         for (card in cards){
@@ -57,7 +57,7 @@ class MyView: View() {
         }
     }
 
-    private fun listOne(id: String){
+    private fun listOneCardsData(id: String){
         if(stringIsLong(id)) {
             val card = cardController.findOne(id.toLong())
             if (card != null) {
@@ -87,14 +87,21 @@ class MyView: View() {
         } else logger.error("String cannot be converted to Long")
     }
 
-    private fun update(){
+    private fun updateCardData(){
         val card = createTempCard()
         card.id = currentId
         if(cardIsValid(card)){
             cardController.update(card)
-            listOne(card.id.toString())
+            listOneCardsData(card.id.toString())
             resetFields()
         }
+    }
+
+    private fun deleteCard(id: String){
+        if(stringIsLong(id)) {
+            cardController.delete(id.toLong())
+            listAllCardsData()
+        } else logger.error("Invalid Card ID")
     }
 
     private fun createTempCard(): CardModel{
@@ -268,7 +275,7 @@ class MyView: View() {
                 }
                 button("Update"){
                     hgrow = Priority.ALWAYS
-                    action {update()}
+                    action { updateCardData()}
                 }
             }
         }
@@ -292,7 +299,7 @@ class MyView: View() {
                         prefWidth = 75.0
                         hgrow = Priority.ALWAYS
                         alignment = Pos.CENTER_LEFT
-                        action { listAll() }
+                        action { listAllCardsData() }
                     }
                 }
                 stackpane{
@@ -309,11 +316,12 @@ class MyView: View() {
                     button("Find"){
                         prefWidth = 75.0
                         alignment = Pos.CENTER_LEFT
-                        action { listOne(idTextField.text) }
+                        action { listOneCardsData(idTextField.text) }
                     }
                     button("Delete") {
                         prefWidth = 75.0
                         alignment = Pos.CENTER_LEFT
+                        action {deleteCard(idTextField.text)}
                     }
                 }
             }
