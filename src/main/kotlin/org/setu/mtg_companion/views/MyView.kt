@@ -3,7 +3,6 @@ package org.setu.mtg_companion.views
 import javafx.collections.FXCollections
 import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
-import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.layout.Priority
@@ -29,6 +28,8 @@ class MyView: View() {
     private var blueColTextField = TextField()
     private var greenColTextField = TextField()
     private var cardTextArea = TextArea()
+
+    internal var infoTextArea = TextArea()
 
     private fun addCardData(
         name: String, type: String, attack: String, defence: String,
@@ -154,6 +155,8 @@ class MyView: View() {
                 prefWidth = 150.0
                 prefHeight = 150.0
                 usePrefWidth = true
+                isWrapText = true
+
             }
             hbox{
                 paddingTop = 20
@@ -176,14 +179,11 @@ class MyView: View() {
         }
         vbox {
             prefWidth = 350.0
-            scrollpane {
-                hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+            infoTextArea = textarea {
+                useMaxHeight = true
+                isEditable = false
                 fitToParentWidth()
-                textarea {
-                    useMaxHeight = true
-                    isEditable = false
-                    fitToParentWidth()
-                }
+                isWrapText = true
             }
             hbox{
                 paddingLeft = 15
@@ -197,6 +197,7 @@ class MyView: View() {
                         prefWidth = 75.0
                         hgrow = Priority.ALWAYS
                         alignment = Pos.CENTER_LEFT
+                        action { cardController.listAll(infoTextArea) }
                     }
                 }
                 stackpane{
@@ -212,9 +213,11 @@ class MyView: View() {
                     alignment = Pos.CENTER_RIGHT
                     button("Find"){
                         prefWidth = 75.0
+                        alignment = Pos.CENTER_LEFT
                     }
                     button("Delete") {
                         prefWidth = 75.0
+                        alignment = Pos.CENTER_LEFT
                     }
                 }
             }
