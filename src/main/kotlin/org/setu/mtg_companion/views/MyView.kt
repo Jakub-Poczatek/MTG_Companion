@@ -33,19 +33,93 @@ class MyView: View() {
 
     private var currentId: Long = 0
 
-    private fun addCardData(
-        name: String, type: String, attack: String, defence: String,
-        neutral: String, white: String, black: String,
-        red: String, blue: String, green: String, cardText: String
-    ){
+    private fun addCardData(){
+        val card = createTempCard()
+
+        // Check if card is valid, otherwise log error
+        if(cardIsValid(card)
+        ) {
+            cardController.add(card)
+            listOne(card.id.toString())
+            resetFields()
+        } else logger.error("Card invalid, not created")
+    }
+
+    private fun listAll(){
+        val cards = cardController.findAll()
+        infoTextArea.clear()
+        for (card in cards){
+            infoTextArea.text += "ID: \t\t\t" + card.id + "\tName: " + card.name +
+                    "\nAttack: \t\t" + card.attack + "\tDefence: \t\t" + card.defence +
+                    "\nNeutral Cost: \t" + card.neutralColNum + "\tWhite Cost: \t" + card.whiteColNum + "\tBlack Cost: \t" + card.blackColNum +
+                    "\nRed Cost: \t" + card.redColNum + "\tBlue Cost: \t" + card.blueColNum + "\tGreen Cost: \t" + card.greenColNum +
+                    "\nCard Text: " + card.cardText + "\n\n"
+        }
+    }
+
+    private fun listOne(id: String){
+        if(stringIsLong(id)) {
+            val card = cardController.findOne(id.toLong())
+            if (card != null) {
+                infoTextArea.clear()
+                infoTextArea.text += "ID: \t\t\t" + card.id + "\tName: " + card.name +
+                        "\nAttack: \t\t" + card.attack + "\tDefence: \t\t" + card.defence +
+                        "\nNeutral Cost: \t" + card.neutralColNum + "\tWhite Cost: \t" + card.whiteColNum + "\tBlack Cost: \t" + card.blackColNum +
+                        "\nRed Cost: \t" + card.redColNum + "\tBlue Cost: \t" + card.blueColNum + "\tGreen Cost: \t" + card.greenColNum +
+                        "\nCard Text: " + card.cardText + "\n\n"
+
+                nameTextField.text = card.name
+                typeComboBox.value = card.type
+                attackTextField.text = card.attack.toString()
+                defenceTextField.text = card.defence.toString()
+                neutralColTextField.text = card.neutralColNum.toString()
+                whiteColTextField.text = card.whiteColNum.toString()
+                blackColTextField.text = card.blackColNum.toString()
+                redColTextField.text = card.redColNum.toString()
+                blueColTextField.text = card.blueColNum.toString()
+                greenColTextField.text = card.greenColNum.toString()
+                cardTextArea.text = card.cardText
+
+                idTextField.text = ""
+
+                currentId = id.toLong()
+            } else logger.error("Could not find card")
+        } else logger.error("String cannot be converted to Long")
+    }
+
+    private fun update(){
+        val card = createTempCard()
+        card.id = currentId
+        if(cardIsValid(card)){
+            cardController.update(card)
+            listOne(card.id.toString())
+            resetFields()
+        }
+    }
+
+    private fun createTempCard(): CardModel{
+        //assign all variables
+        val name = nameTextField.text
+        val type = typeComboBox.value
+        val attack = attackTextField.text
+        val defence = defenceTextField.text
+        val neutral = neutralColTextField.text
+        val white = whiteColTextField.text
+        val black = blackColTextField.text
+        val red = redColTextField.text
+        val blue = blueColTextField.text
+        val green = greenColTextField.text
+        val cardText = cardTextArea.text
+
         val card = CardModel()
+
         // Check name
         if(name.isNotEmpty() && name.length < 64)
             card.name = name
         else
             logger.error("Invalid name, must be not empty and max 64 characters long")
 
-        // type comes from ComboBox so will always be valid
+        // Type comes from ComboBox so will always be valid
         card.type = type
 
         // Check numeric values
@@ -73,69 +147,7 @@ class MyView: View() {
         if(cardText.isNotEmpty() && cardText.length < 512)
             card.cardText = cardText
 
-        // Check if card is valid, otherwise log error
-        if(card.name.isNotEmpty() && card.attack > -1 && card.defence > -1 && card.neutralColNum > -1 &&
-            card.whiteColNum > -1 && card.blackColNum > -1 && card.redColNum > -1 && card.blueColNum > -1 &&
-            card.greenColNum > -1 && card.cardText.isNotEmpty()
-        ) {
-            cardController.add(card)
-            nameTextField.text = ""
-            typeComboBox.value = typeComboBox.items[0]
-            attackTextField.text = "0"
-            defenceTextField.text = "0"
-            neutralColTextField.text = "0"
-            whiteColTextField.text = "0"
-            blackColTextField.text = "0"
-            redColTextField.text = "0"
-            blueColTextField.text = "0"
-            greenColTextField.text = "0"
-            cardTextArea.text = ""
-        }
-        else
-            logger.error("Card could not be created, invalid fields")
-    }
-
-    fun listAll(){
-        val cards = cardController.findAll()
-        infoTextArea.clear()
-        for (card in cards){
-            infoTextArea.text += "ID: \t\t\t" + card.id + "\tName: " + card.name +
-                    "\nAttack: \t\t" + card.attack + "\tDefence: \t\t" + card.defence +
-                    "\nNeutral Cost: \t" + card.neutralColNum + "\tWhite Cost: \t" + card.whiteColNum + "\tBlack Cost: \t" + card.blackColNum +
-                    "\nRed Cost: \t" + card.redColNum + "\tBlue Cost: \t" + card.blueColNum + "\tGreen Cost: \t" + card.greenColNum +
-                    "\nCard Text: " + card.cardText +"\n\n"
-        }
-    }
-
-    fun listOne(id: String){
-        if(stringIsLong(id)) {
-            val card = cardController.findOne(id.toLong())
-            if (card != null) {
-                infoTextArea.clear()
-                infoTextArea.text += "ID: \t\t\t" + card.id + "\tName: " + card.name +
-                        "\nAttack: \t\t" + card.attack + "\tDefence: \t\t" + card.defence +
-                        "\nNeutral Cost: \t" + card.neutralColNum + "\tWhite Cost: \t" + card.whiteColNum + "\tBlack Cost: \t" + card.blackColNum +
-                        "\nRed Cost: \t" + card.redColNum + "\tBlue Cost: \t" + card.blueColNum + "\tGreen Cost: \t" + card.greenColNum +
-                        "\nCard Text: " + card.cardText + "\n\n"
-
-                nameTextField.text = card.name
-                typeComboBox.value = card.type
-                attackTextField.text = card.attack.toString()
-                defenceTextField.text = card.defence.toString()
-                neutralColTextField.text = card.neutralColNum.toString()
-                whiteColTextField.text = card.whiteColNum.toString()
-                blackColTextField.text = card.blackColNum.toString()
-                redColTextField.text = card.redColNum.toString()
-                blueColTextField.text = card.blueColNum.toString()
-                greenColTextField.text = card.greenColNum.toString()
-                cardTextArea.text = card.cardText
-
-                idTextField.text = ""
-
-                currentId = id.toLong()
-            } else
-                logger.error("Could not find card")
-        }
+        return card
     }
 
     private fun stringIsShort(string: String): Boolean{
@@ -156,6 +168,26 @@ class MyView: View() {
             logger.error("String cannot be converted to Long")
             false
         }
+    }
+
+    private fun resetFields(){
+        nameTextField.text = ""
+        typeComboBox.value = typeComboBox.items[0]
+        attackTextField.text = "0"
+        defenceTextField.text = "0"
+        neutralColTextField.text = "0"
+        whiteColTextField.text = "0"
+        blackColTextField.text = "0"
+        redColTextField.text = "0"
+        blueColTextField.text = "0"
+        greenColTextField.text = "0"
+        cardTextArea.text = ""
+    }
+
+    private fun cardIsValid(card: CardModel): Boolean{
+        return card.name.isNotEmpty() && card.attack > -1 && card.defence > -1 && card.neutralColNum > -1 &&
+                card.whiteColNum > -1 && card.blackColNum > -1 && card.redColNum > -1 && card.blueColNum > -1 &&
+                card.greenColNum > -1 && card.cardText.isNotEmpty()
     }
 
     override val root = hbox {
@@ -232,16 +264,11 @@ class MyView: View() {
                 alignment = Pos.CENTER
                 button("Submit"){
                     hgrow = Priority.ALWAYS
-                    action{
-                        addCardData(
-                            nameTextField.text, typeComboBox.value, attackTextField.text, defenceTextField.text,
-                            neutralColTextField.text, whiteColTextField.text, blackColTextField.text,
-                            redColTextField.text, blueColTextField.text, greenColTextField.text, cardTextArea.text
-                        )
-                    }
+                    action{ addCardData() }
                 }
                 button("Update"){
                     hgrow = Priority.ALWAYS
+                    action {update()}
                 }
             }
         }

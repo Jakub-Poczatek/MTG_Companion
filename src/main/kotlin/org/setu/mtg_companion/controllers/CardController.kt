@@ -3,8 +3,6 @@ package org.setu.mtg_companion.controllers
 import mu.KotlinLogging
 import org.setu.mtg_companion.models.CardMemStore
 import org.setu.mtg_companion.models.CardModel
-import javafx.scene.control.TextArea
-import javafx.scene.control.TextField
 
 class CardController {
     private val cards = CardMemStore()
@@ -26,5 +24,7 @@ class CardController {
         return cards.findACard(id)
     }
 
-
+    fun update(card: CardModel){
+        cards.updateCard(card)
+    }
 }

@@ -27,7 +27,20 @@ class CardMemStore : CardStore {
     }
 
     override fun updateCard(card: CardModel) {
-        TODO("Not yet implemented")
+        val foundCard = findACard(card.id)
+        if(foundCard != null){
+            foundCard.name = card.name
+            foundCard.type = card.type
+            foundCard.attack = card.attack
+            foundCard.defence = card.defence
+            foundCard.neutralColNum = card.neutralColNum
+            foundCard.whiteColNum = card.whiteColNum
+            foundCard.blackColNum = card.blackColNum
+            foundCard.redColNum = card.redColNum
+            foundCard.blueColNum = card.blueColNum
+            foundCard.greenColNum = card.greenColNum
+            foundCard.cardText = card.cardText
+        }
     }
 
     override fun deleteCard(card: CardModel) {
