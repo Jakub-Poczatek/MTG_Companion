@@ -28,8 +28,10 @@ class MyView: View() {
     private var blueColTextField = TextField()
     private var greenColTextField = TextField()
     private var cardTextArea = TextArea()
+    private var infoTextArea = TextArea()
+    private var idTextField = TextField()
 
-    internal var infoTextArea = TextArea()
+    private var currentId: Long = 0
 
     private fun addCardData(
         name: String, type: String, attack: String, defence: String,
@@ -74,10 +76,66 @@ class MyView: View() {
         // Check if card is valid, otherwise log error
         if(card.name.isNotEmpty() && card.attack > -1 && card.defence > -1 && card.neutralColNum > -1 &&
             card.whiteColNum > -1 && card.blackColNum > -1 && card.redColNum > -1 && card.blueColNum > -1 &&
-            card.greenColNum > -1 && card.cardText.isNotEmpty())
+            card.greenColNum > -1 && card.cardText.isNotEmpty()
+        ) {
             cardController.add(card)
+            nameTextField.text = ""
+            typeComboBox.value = typeComboBox.items[0]
+            attackTextField.text = "0"
+            defenceTextField.text = "0"
+            neutralColTextField.text = "0"
+            whiteColTextField.text = "0"
+            blackColTextField.text = "0"
+            redColTextField.text = "0"
+            blueColTextField.text = "0"
+            greenColTextField.text = "0"
+            cardTextArea.text = ""
+        }
         else
             logger.error("Card could not be created, invalid fields")
+    }
+
+    fun listAll(){
+        val cards = cardController.findAll()
+        infoTextArea.clear()
+        for (card in cards){
+            infoTextArea.text += "ID: \t\t\t" + card.id + "\tName: " + card.name +
+                    "\nAttack: \t\t" + card.attack + "\tDefence: \t\t" + card.defence +
+                    "\nNeutral Cost: \t" + card.neutralColNum + "\tWhite Cost: \t" + card.whiteColNum + "\tBlack Cost: \t" + card.blackColNum +
+                    "\nRed Cost: \t" + card.redColNum + "\tBlue Cost: \t" + card.blueColNum + "\tGreen Cost: \t" + card.greenColNum +
+                    "\nCard Text: " + card.cardText +"\n\n"
+        }
+    }
+
+    fun listOne(id: String){
+        if(stringIsLong(id)) {
+            val card = cardController.findOne(id.toLong())
+            if (card != null) {
+                infoTextArea.clear()
+                infoTextArea.text += "ID: \t\t\t" + card.id + "\tName: " + card.name +
+                        "\nAttack: \t\t" + card.attack + "\tDefence: \t\t" + card.defence +
+                        "\nNeutral Cost: \t" + card.neutralColNum + "\tWhite Cost: \t" + card.whiteColNum + "\tBlack Cost: \t" + card.blackColNum +
+                        "\nRed Cost: \t" + card.redColNum + "\tBlue Cost: \t" + card.blueColNum + "\tGreen Cost: \t" + card.greenColNum +
+                        "\nCard Text: " + card.cardText + "\n\n"
+
+                nameTextField.text = card.name
+                typeComboBox.value = card.type
+                attackTextField.text = card.attack.toString()
+                defenceTextField.text = card.defence.toString()
+                neutralColTextField.text = card.neutralColNum.toString()
+                whiteColTextField.text = card.whiteColNum.toString()
+                blackColTextField.text = card.blackColNum.toString()
+                redColTextField.text = card.redColNum.toString()
+                blueColTextField.text = card.blueColNum.toString()
+                greenColTextField.text = card.greenColNum.toString()
+                cardTextArea.text = card.cardText
+
+                idTextField.text = ""
+
+                currentId = id.toLong()
+            } else
+                logger.error("Could not find card")
+        }
     }
 
     private fun stringIsShort(string: String): Boolean{
@@ -85,7 +143,17 @@ class MyView: View() {
             string.toShort()
             true
         } catch (e: Exception){
-            logger
+            logger.error("String cannot be converted to Short")
+            false
+        }
+    }
+
+    private fun stringIsLong(string: String): Boolean{
+        return try{
+            string.toLong()
+            true
+        } catch (e: Exception){
+            logger.error("String cannot be converted to Long")
             false
         }
     }
@@ -197,13 +265,13 @@ class MyView: View() {
                         prefWidth = 75.0
                         hgrow = Priority.ALWAYS
                         alignment = Pos.CENTER_LEFT
-                        action { cardController.listAll(infoTextArea) }
+                        action { listAll() }
                     }
                 }
                 stackpane{
                     hgrow = Priority.ALWAYS
                     alignment = Pos.CENTER_RIGHT
-                    textfield {
+                    idTextField = textfield {
                         promptText = "ID"
                         maxWidth = 50.0
                     }
@@ -214,6 +282,7 @@ class MyView: View() {
                     button("Find"){
                         prefWidth = 75.0
                         alignment = Pos.CENTER_LEFT
+                        action { listOne(idTextField.text) }
                     }
                     button("Delete") {
                         prefWidth = 75.0

@@ -34,10 +34,6 @@ class CardMemStore : CardStore {
         TODO("Not yet implemented")
     }
 
-    private fun logAll(){
-        cards.forEach {logger.info("$it")}
-    }
-
     private fun logOne(card: CardModel) {
         logger.info("$card")
     }
