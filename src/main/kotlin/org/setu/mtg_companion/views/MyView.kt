@@ -40,7 +40,7 @@ class MyView: View() {
         if(cardIsValid(card)
         ) {
             cardController.add(card)
-            listOneCardsData(card.id.toString())
+            listAllCardsData()
             resetFields()
         } else logger.error("Card invalid, not created")
     }
