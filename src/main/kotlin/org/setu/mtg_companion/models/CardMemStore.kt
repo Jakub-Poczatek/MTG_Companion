@@ -3,9 +3,9 @@ package org.setu.mtg_companion.models
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
-var lastId: Long = 0
+private var lastId: Long = 0
 
-internal fun getNextId(): Long {
+private fun getNextId(): Long {
     return lastId++
 }
 
