@@ -8,7 +8,6 @@ import java.sql.ResultSet
 import java.sql.Statement
 
 private val logger = KotlinLogging.logger {}
-private var lastId: Long = 0
 private var connection: Connection? = null
 private var statement: Statement? = null
 
@@ -41,7 +40,7 @@ class CardDBStore : CardStore {
     override fun findACard(id: Long): CardModel? {
         return try {
             val foundCardData = statement!!.executeQuery("SELECT * FROM cards WHERE id = ${id} LIMIT 1")
-            var foundCards = convertToCardModel(foundCardData).get(0)
+            val foundCards = convertToCardModel(foundCardData)[0]
             logOne(foundCards)
             foundCards
         } catch (ex: Exception) {
@@ -61,11 +60,25 @@ class CardDBStore : CardStore {
     }
 
     override fun updateCard(card: CardModel) {
-        TODO("Not yet implemented")
+        try {
+            val query: String =
+                "UPDATE cards SET name='${card.name}', type='${card.type}', attack=${card.attack}, defence=${card.defence}, " +
+                "neutral=${card.neutralColNum}, white=${card.whiteColNum}, black=${card.blackColNum}, red=${card.redColNum}, " +
+                "blue=${card.blueColNum}, green=${card.greenColNum}, text='${card.cardText}' WHERE id=${card.id}"
+
+            statement!!.executeUpdate(query)
+            logOne(card)
+        } catch (ex: Exception) {
+            logger.error { ex }
+        }
     }
 
     override fun deleteCard(card: CardModel) {
-        TODO("Not yet implemented")
+        try {
+            statement!!.execute("DELETE FROM cards WHERE id=${card.id}")
+        } catch (ex: Exception) {
+            logger.error { ex }
+        }
     }
 
     private fun logOne(card: CardModel) {
@@ -74,7 +87,7 @@ class CardDBStore : CardStore {
 }
 
 private fun convertToCardModel(rs: ResultSet): List<CardModel>{
-    var cardList = ArrayList<CardModel>()
+    val cardList = ArrayList<CardModel>()
     while(rs.next()) {
         cardList.add(CardModel(
             id = rs.getInt("id").toLong(), name = rs.getString("name"), type = rs.getString("type"),
@@ -86,8 +99,4 @@ private fun convertToCardModel(rs: ResultSet): List<CardModel>{
         ))
     }
     return cardList.toList()
-}
-
-private fun getNextId(): Long{
-    return lastId++
 }
