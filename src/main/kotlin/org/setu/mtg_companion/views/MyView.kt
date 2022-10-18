@@ -39,7 +39,7 @@ class MyView: View() {
 
     private var currentId: Long = 0
 
-    private fun addCardData(){
+    public fun addCardData(){
         val card = createTempCard()
 
         // Check if card is valid, otherwise log error
@@ -54,7 +54,7 @@ class MyView: View() {
         }
     }
 
-    private fun listAllCardsData(){
+    public fun listAllCardsData(){
         val cards = cardController.findAll()
         cardList = cards
         infoTableView.items = FXCollections.observableList(cards)
@@ -62,7 +62,7 @@ class MyView: View() {
         singleInfoTableView.isVisible = false
     }
 
-    private fun listOneCardsData(id: String){
+    public fun listOneCardsData(id: String){
         if(stringIsLong(id)) {
             val card = cardController.findOne(id.toLong())
             if (card != null) {
@@ -89,7 +89,7 @@ class MyView: View() {
         } else logger.error("String cannot be converted to Long")
     }
 
-    private fun updateCardData(){
+    public fun updateCardData(){
         val card = createTempCard()
         card.id = currentId
         if(cardIsValid(card)){
@@ -99,7 +99,7 @@ class MyView: View() {
         }
     }
 
-    private fun deleteCard(id: String){
+    public fun deleteCard(id: String){
         if(stringIsLong(id)) {
             cardController.delete(id.toLong())
             listAllCardsData()
@@ -107,7 +107,7 @@ class MyView: View() {
         } else logger.error("Invalid Card ID")
     }
 
-    private fun search(){
+    public fun search(){
         val criteria: String = criteriaComboBox.value
         val query: String = searchTextField.text.lowercase()
         val list = ArrayList<CardModel>()
@@ -131,7 +131,7 @@ class MyView: View() {
         infoTableView.items = FXCollections.observableList(list)
     }
 
-    private fun createTempCard(): CardModel{
+    public fun createTempCard(): CardModel{
         emptyToString()
 
         //assign all variables
@@ -188,7 +188,7 @@ class MyView: View() {
         return card
     }
 
-    private fun stringIsShort(string: String): Boolean{
+    public fun stringIsShort(string: String): Boolean{
         return try {
             string.toShort()
             true
@@ -198,7 +198,7 @@ class MyView: View() {
         }
     }
 
-    private fun stringIsLong(string: String): Boolean{
+    public fun stringIsLong(string: String): Boolean{
         return try{
             string.toLong()
             true
@@ -208,7 +208,7 @@ class MyView: View() {
         }
     }
 
-    private fun resetFields(){
+    public fun resetFields(){
         nameTextField.text = ""
         typeComboBox.value = typeComboBox.items[0]
         attackTextField.text = ""
@@ -222,13 +222,13 @@ class MyView: View() {
         cardTextArea.text = ""
     }
 
-    private fun cardIsValid(card: CardModel): Boolean{
+    public fun cardIsValid(card: CardModel): Boolean{
         return card.name.isNotEmpty() && card.attack > -1 && card.defence > -1 && card.neutralColNum > -1 &&
                 card.whiteColNum > -1 && card.blackColNum > -1 && card.redColNum > -1 && card.blueColNum > -1 &&
                 card.greenColNum > -1 && card.cardText.isNotEmpty()
     }
 
-    private fun emptyToString(){
+    public fun emptyToString(){
         if(attackTextField.text.isEmpty())
             attackTextField.text = "0"
         if(defenceTextField.text.isEmpty())
