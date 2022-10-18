@@ -17,7 +17,8 @@ class MyView: View() {
 
     private val cardController = CardController()
     private val logger = KotlinLogging.logger {}
-    private var cardsList = FXCollections.observableList(ArrayList<CardModel>())
+    private var cardList = listOf<CardModel>()
+    private var observableCardList = FXCollections.observableList(ArrayList<CardModel>())
 
     private var nameTextField = TextField()
     private var typeComboBox = ComboBox<String>()
@@ -31,8 +32,10 @@ class MyView: View() {
     private var greenColTextField = TextField()
     private var cardTextArea = TextArea()
     private var idTextField = TextField()
-    private var infoTableView = TableView(cardsList)
-    private var singleInfoTableView = TableView(cardsList)
+    private var infoTableView = TableView(observableCardList)
+    private var singleInfoTableView = TableView(observableCardList)
+    private var criteriaComboBox = ComboBox<String>()
+    private var searchTextField = TextField()
 
     private var currentId: Long = 0
 
@@ -50,6 +53,7 @@ class MyView: View() {
 
     private fun listAllCardsData(){
         val cards = cardController.findAll()
+        cardList = cards
         infoTableView.items = FXCollections.observableList(cards)
         infoTableView.isVisible = true
         singleInfoTableView.isVisible = false
@@ -97,6 +101,30 @@ class MyView: View() {
             cardController.delete(id.toLong())
             listAllCardsData()
         } else logger.error("Invalid Card ID")
+    }
+
+    private fun search(){
+        val criteria: String = criteriaComboBox.value
+        val query: String = searchTextField.text.lowercase()
+        val list = ArrayList<CardModel>()
+        when (criteria) {
+            "ID" -> cardList.forEach{
+                if(query in it.id.toString()){
+                    list.add(it)
+                }
+            }
+            "Name" -> cardList.forEach{
+                if(query in it.name.lowercase()){
+                    list.add(it)
+                }
+            }
+            "Type" -> cardList.forEach{
+                if(query in it.type.lowercase()){
+                    list.add(it)
+                }
+            }
+        }
+        infoTableView.items = FXCollections.observableList(list)
     }
 
     private fun createTempCard(): CardModel{
@@ -362,35 +390,41 @@ class MyView: View() {
                     column("Text", CardModel::cardText) {
                         prefWidth = 200.0
                         enableTextWrap()
-                        isEditable = true
                     }
                     isVisible = false
                 }
             }
-            hbox{
-                paddingLeft = 15
+            borderpane {
+                //paddingLeft = 15
                 paddingRight = 15
                 paddingTop = 15
                 paddingBottom = 15
                 hgrow = Priority.ALWAYS
 
-                borderpane{
-                    hgrow = Priority.ALWAYS
-                    left = button("List All"){
+                left = hbox {
+                    button("List All") {
                         prefWidth = 75.0
                         hgrow = Priority.ALWAYS
-                        alignment = Pos.CENTER_LEFT
                         action { listAllCardsData() }
                     }
-                    center = button("Find"){
+                    button("Find") {
                         prefWidth = 75.0
-                        alignment = Pos.CENTER_LEFT
                         action { listOneCardsData(infoTableView.selectionModel.selectedItem.id.toString()) }
                     }
-                    right = button("Delete") {
+                    button("Delete") {
                         prefWidth = 75.0
-                        alignment = Pos.CENTER_LEFT
-                        action {deleteCard(infoTableView.selectionModel.selectedItem.id.toString())}
+                        action { deleteCard(infoTableView.selectionModel.selectedItem.id.toString()) }
+                    }
+                }
+                right = hbox{
+                    searchTextField = textfield{
+                        promptText = "search"
+                        action { search() }
+                    }
+                    criteriaComboBox = combobox {
+                        items = FXCollections.observableArrayList("ID", "Name", "Type")
+                        prefWidth = 75.0
+                        value = items[0]
                     }
                 }
             }
