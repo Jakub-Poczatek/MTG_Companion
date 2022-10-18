@@ -17,7 +17,8 @@ class MyView: View() {
 
     private val cardController = CardController()
     private val logger = KotlinLogging.logger {}
-    private var cardsList = FXCollections.observableList(ArrayList<CardModel>())
+    private var cardList = listOf<CardModel>()
+    private var observableCardList = FXCollections.observableList(ArrayList<CardModel>())
 
     private var nameTextField = TextField()
     private var typeComboBox = ComboBox<String>()
@@ -31,8 +32,10 @@ class MyView: View() {
     private var greenColTextField = TextField()
     private var cardTextArea = TextArea()
     private var idTextField = TextField()
-    private var infoTableView = TableView(cardsList)
-    private var singleInfoTableView = TableView(cardsList)
+    private var infoTableView = TableView(observableCardList)
+    private var singleInfoTableView = TableView(observableCardList)
+    private var criteriaComboBox = ComboBox<String>()
+    private var searchTextField = TextField()
 
     private var currentId: Long = 0
 
@@ -45,11 +48,15 @@ class MyView: View() {
             cardController.add(card)
             listAllCardsData()
             resetFields()
-        } else logger.error("Card invalid, not created")
+        } else {
+            logger.error("Card invalid, not created")
+            resetFields()
+        }
     }
 
     private fun listAllCardsData(){
         val cards = cardController.findAll()
+        cardList = cards
         infoTableView.items = FXCollections.observableList(cards)
         infoTableView.isVisible = true
         singleInfoTableView.isVisible = false
@@ -96,10 +103,37 @@ class MyView: View() {
         if(stringIsLong(id)) {
             cardController.delete(id.toLong())
             listAllCardsData()
+            search()
         } else logger.error("Invalid Card ID")
     }
 
+    private fun search(){
+        val criteria: String = criteriaComboBox.value
+        val query: String = searchTextField.text.lowercase()
+        val list = ArrayList<CardModel>()
+        when (criteria) {
+            "ID" -> cardList.forEach{
+                if(query in it.id.toString()){
+                    list.add(it)
+                }
+            }
+            "Name" -> cardList.forEach{
+                if(query in it.name.lowercase()){
+                    list.add(it)
+                }
+            }
+            "Type" -> cardList.forEach{
+                if(query in it.type.lowercase()){
+                    list.add(it)
+                }
+            }
+        }
+        infoTableView.items = FXCollections.observableList(list)
+    }
+
     private fun createTempCard(): CardModel{
+        emptyToString()
+
         //assign all variables
         val name = nameTextField.text
         val type = typeComboBox.value
@@ -148,6 +182,8 @@ class MyView: View() {
         // Check card text
         if(cardText.isNotEmpty() && cardText.length < 512)
             card.cardText = cardText
+        else
+            logger.error("Invalid card text, must be not empty and max 512 characters long")
 
         return card
     }
@@ -175,14 +211,14 @@ class MyView: View() {
     private fun resetFields(){
         nameTextField.text = ""
         typeComboBox.value = typeComboBox.items[0]
-        attackTextField.text = "0"
-        defenceTextField.text = "0"
-        neutralColTextField.text = "0"
-        whiteColTextField.text = "0"
-        blackColTextField.text = "0"
-        redColTextField.text = "0"
-        blueColTextField.text = "0"
-        greenColTextField.text = "0"
+        attackTextField.text = ""
+        defenceTextField.text = ""
+        neutralColTextField.text = ""
+        whiteColTextField.text = ""
+        blackColTextField.text = ""
+        redColTextField.text = ""
+        blueColTextField.text = ""
+        greenColTextField.text = ""
         cardTextArea.text = ""
     }
 
@@ -190,6 +226,25 @@ class MyView: View() {
         return card.name.isNotEmpty() && card.attack > -1 && card.defence > -1 && card.neutralColNum > -1 &&
                 card.whiteColNum > -1 && card.blackColNum > -1 && card.redColNum > -1 && card.blueColNum > -1 &&
                 card.greenColNum > -1 && card.cardText.isNotEmpty()
+    }
+
+    private fun emptyToString(){
+        if(attackTextField.text.isEmpty())
+            attackTextField.text = "0"
+        if(defenceTextField.text.isEmpty())
+            defenceTextField.text = "0"
+        if(neutralColTextField.text.isEmpty())
+            neutralColTextField.text = "0"
+        if(whiteColTextField.text.isEmpty())
+            whiteColTextField.text = "0"
+        if(blackColTextField.text.isEmpty())
+            blackColTextField.text = "0"
+        if(redColTextField.text.isEmpty())
+            redColTextField.text = "0"
+        if(blueColTextField.text.isEmpty())
+            blueColTextField.text = "0"
+        if(greenColTextField.text.isEmpty())
+            greenColTextField.text = "0"
     }
 
     override val root = hbox {
@@ -210,46 +265,38 @@ class MyView: View() {
                 attackTextField = textfield {
                     promptText = "attack"
                     prefWidth = 75.0
-                    text = "0"
                 }
                 defenceTextField = textfield {
                     promptText = "defence"
                     prefWidth = 75.0
-                    text = "0"
                 }
             }
             hbox{
                 neutralColTextField = textfield {
                     promptText = "Neutral"
                     prefWidth = 50.0
-                    text = "0"
                 }
                 whiteColTextField = textfield {
                     promptText = "White"
                     prefWidth = 50.0
-                    text = "0"
                 }
                 blackColTextField = textfield {
                     promptText = "Black"
                     prefWidth = 50.0
-                    text = "0"
                 }
             }
             hbox{
                 redColTextField = textfield {
                     promptText = "Red"
                     prefWidth = 50.0
-                    text = "0"
                 }
                 blueColTextField = textfield {
                     promptText = "Blue"
                     prefWidth = 50.0
-                    text = "0"
                 }
                 greenColTextField = textfield {
                     promptText = "Green"
                     prefWidth = 50.0
-                    text = "0"
                 }
             }
             cardTextArea = textarea {
@@ -315,85 +362,98 @@ class MyView: View() {
                     }
                 }
                 singleInfoTableView = tableview {
-                    column("ID", CardModel::id) {
+                    readonlyColumn("ID", CardModel::id) {
                         prefWidth = 25.0
                         enableTextWrap()
                     }
-                    column("Name", CardModel::name) {
+                    readonlyColumn("Name", CardModel::name) {
                         prefWidth = 75.0
                         enableTextWrap()
                     }
-                    column("Type", CardModel::type) {
+                    readonlyColumn("Type", CardModel::type) {
                         prefWidth = 80.0
                         enableTextWrap()
                     }
-                    column("Atk", CardModel::attack) {
+                    readonlyColumn("Atk", CardModel::attack) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Dfc", CardModel::defence) {
+                    readonlyColumn("Dfc", CardModel::defence) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Neu", CardModel::neutralColNum) {
+                    readonlyColumn("Neu", CardModel::neutralColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Wht", CardModel::whiteColNum) {
+                    readonlyColumn("Wht", CardModel::whiteColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Blk", CardModel::blackColNum) {
+                    readonlyColumn("Blk", CardModel::blackColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Red", CardModel::redColNum) {
+                    readonlyColumn("Red", CardModel::redColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Blu", CardModel::blueColNum) {
+                    readonlyColumn("Blu", CardModel::blueColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Grn", CardModel::greenColNum) {
+                    readonlyColumn("Grn", CardModel::greenColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Text", CardModel::cardText) {
+                    readonlyColumn("Text", CardModel::cardText) {
                         prefWidth = 200.0
                         enableTextWrap()
-                        isEditable = true
                     }
                     isVisible = false
                 }
             }
-            hbox{
-                paddingLeft = 15
+            borderpane {
+                //paddingLeft = 15
                 paddingRight = 15
                 paddingTop = 15
                 paddingBottom = 15
                 hgrow = Priority.ALWAYS
 
-                borderpane{
-                    hgrow = Priority.ALWAYS
-                    left = button("List All"){
+                left = hbox {
+                    button("List All") {
                         prefWidth = 75.0
                         hgrow = Priority.ALWAYS
-                        alignment = Pos.CENTER_LEFT
                         action { listAllCardsData() }
                     }
-                    center = button("Find"){
+                    button("Find") {
                         prefWidth = 75.0
-                        alignment = Pos.CENTER_LEFT
-                        action { listOneCardsData(infoTableView.selectionModel.selectedItem.id.toString()) }
+                        action {
+                            if(infoTableView.selectionModel.selectedItem != null)
+                                listOneCardsData(infoTableView.selectionModel.selectedItem.id.toString())
+                        }
                     }
-                    right = button("Delete") {
+                    button("Delete") {
                         prefWidth = 75.0
-                        alignment = Pos.CENTER_LEFT
-                        action {deleteCard(infoTableView.selectionModel.selectedItem.id.toString())}
+                        action {
+                            if(infoTableView.selectionModel.selectedItem != null)
+                                deleteCard(infoTableView.selectionModel.selectedItem.id.toString())
+                        }
+                    }
+                }
+                right = hbox{
+                    searchTextField = textfield{
+                        promptText = "search"
+                        action { search() }
+                    }
+                    criteriaComboBox = combobox {
+                        items = FXCollections.observableArrayList("ID", "Name", "Type")
+                        prefWidth = 75.0
+                        value = items[0]
                     }
                 }
             }
         }
+        listAllCardsData()
     }
 }

@@ -4,6 +4,7 @@ import mu.KotlinLogging
 //import org.setu.mtg_companion.models.CardMemStore
 import org.setu.mtg_companion.models.CardDBStore
 import org.setu.mtg_companion.models.CardModel
+import kotlin.system.exitProcess
 
 class CardController {
     //private val cards = CardMemStore()
@@ -12,7 +13,11 @@ class CardController {
 
     init {
         logger.info("Launching MTG Companion App")
-        cards.connectToDB()
+        if(!cards.connectToDB()){
+            logger.error { "Can't reach database" }
+            exitProcess(-1)
+        }
+
         //dummyData()
     }
 

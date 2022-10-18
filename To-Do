@@ -1,3 +1,7 @@
 To-Do Validation:
-- Trying to find/delete before selecting field in table
-- if empty int field then = 0
+-
+
+Questions:
+- Extra functionality
+- Should I have backup functionality
+-
