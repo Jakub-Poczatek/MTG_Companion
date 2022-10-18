@@ -103,6 +103,7 @@ class MyView: View() {
         if(stringIsLong(id)) {
             cardController.delete(id.toLong())
             listAllCardsData()
+            search()
         } else logger.error("Invalid Card ID")
     }
 
