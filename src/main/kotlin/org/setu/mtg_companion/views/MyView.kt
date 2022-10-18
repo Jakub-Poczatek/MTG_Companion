@@ -48,7 +48,10 @@ class MyView: View() {
             cardController.add(card)
             listAllCardsData()
             resetFields()
-        } else logger.error("Card invalid, not created")
+        } else {
+            logger.error("Card invalid, not created")
+            resetFields()
+        }
     }
 
     private fun listAllCardsData(){
@@ -128,6 +131,8 @@ class MyView: View() {
     }
 
     private fun createTempCard(): CardModel{
+        emptyToString()
+
         //assign all variables
         val name = nameTextField.text
         val type = typeComboBox.value
@@ -176,6 +181,8 @@ class MyView: View() {
         // Check card text
         if(cardText.isNotEmpty() && cardText.length < 512)
             card.cardText = cardText
+        else
+            logger.error("Invalid card text, must be not empty and max 512 characters long")
 
         return card
     }
@@ -203,14 +210,14 @@ class MyView: View() {
     private fun resetFields(){
         nameTextField.text = ""
         typeComboBox.value = typeComboBox.items[0]
-        attackTextField.text = "0"
-        defenceTextField.text = "0"
-        neutralColTextField.text = "0"
-        whiteColTextField.text = "0"
-        blackColTextField.text = "0"
-        redColTextField.text = "0"
-        blueColTextField.text = "0"
-        greenColTextField.text = "0"
+        attackTextField.text = ""
+        defenceTextField.text = ""
+        neutralColTextField.text = ""
+        whiteColTextField.text = ""
+        blackColTextField.text = ""
+        redColTextField.text = ""
+        blueColTextField.text = ""
+        greenColTextField.text = ""
         cardTextArea.text = ""
     }
 
@@ -218,6 +225,25 @@ class MyView: View() {
         return card.name.isNotEmpty() && card.attack > -1 && card.defence > -1 && card.neutralColNum > -1 &&
                 card.whiteColNum > -1 && card.blackColNum > -1 && card.redColNum > -1 && card.blueColNum > -1 &&
                 card.greenColNum > -1 && card.cardText.isNotEmpty()
+    }
+
+    private fun emptyToString(){
+        if(attackTextField.text.isEmpty())
+            attackTextField.text = "0"
+        if(defenceTextField.text.isEmpty())
+            defenceTextField.text = "0"
+        if(neutralColTextField.text.isEmpty())
+            neutralColTextField.text = "0"
+        if(whiteColTextField.text.isEmpty())
+            whiteColTextField.text = "0"
+        if(blackColTextField.text.isEmpty())
+            blackColTextField.text = "0"
+        if(redColTextField.text.isEmpty())
+            redColTextField.text = "0"
+        if(blueColTextField.text.isEmpty())
+            blueColTextField.text = "0"
+        if(greenColTextField.text.isEmpty())
+            greenColTextField.text = "0"
     }
 
     override val root = hbox {
@@ -238,46 +264,38 @@ class MyView: View() {
                 attackTextField = textfield {
                     promptText = "attack"
                     prefWidth = 75.0
-                    text = "0"
                 }
                 defenceTextField = textfield {
                     promptText = "defence"
                     prefWidth = 75.0
-                    text = "0"
                 }
             }
             hbox{
                 neutralColTextField = textfield {
                     promptText = "Neutral"
                     prefWidth = 50.0
-                    text = "0"
                 }
                 whiteColTextField = textfield {
                     promptText = "White"
                     prefWidth = 50.0
-                    text = "0"
                 }
                 blackColTextField = textfield {
                     promptText = "Black"
                     prefWidth = 50.0
-                    text = "0"
                 }
             }
             hbox{
                 redColTextField = textfield {
                     promptText = "Red"
                     prefWidth = 50.0
-                    text = "0"
                 }
                 blueColTextField = textfield {
                     promptText = "Blue"
                     prefWidth = 50.0
-                    text = "0"
                 }
                 greenColTextField = textfield {
                     promptText = "Green"
                     prefWidth = 50.0
-                    text = "0"
                 }
             }
             cardTextArea = textarea {
@@ -343,51 +361,51 @@ class MyView: View() {
                     }
                 }
                 singleInfoTableView = tableview {
-                    column("ID", CardModel::id) {
+                    readonlyColumn("ID", CardModel::id) {
                         prefWidth = 25.0
                         enableTextWrap()
                     }
-                    column("Name", CardModel::name) {
+                    readonlyColumn("Name", CardModel::name) {
                         prefWidth = 75.0
                         enableTextWrap()
                     }
-                    column("Type", CardModel::type) {
+                    readonlyColumn("Type", CardModel::type) {
                         prefWidth = 80.0
                         enableTextWrap()
                     }
-                    column("Atk", CardModel::attack) {
+                    readonlyColumn("Atk", CardModel::attack) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Dfc", CardModel::defence) {
+                    readonlyColumn("Dfc", CardModel::defence) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Neu", CardModel::neutralColNum) {
+                    readonlyColumn("Neu", CardModel::neutralColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Wht", CardModel::whiteColNum) {
+                    readonlyColumn("Wht", CardModel::whiteColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Blk", CardModel::blackColNum) {
+                    readonlyColumn("Blk", CardModel::blackColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Red", CardModel::redColNum) {
+                    readonlyColumn("Red", CardModel::redColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Blu", CardModel::blueColNum) {
+                    readonlyColumn("Blu", CardModel::blueColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Grn", CardModel::greenColNum) {
+                    readonlyColumn("Grn", CardModel::greenColNum) {
                         prefWidth = 30.0
                         enableTextWrap()
                     }
-                    column("Text", CardModel::cardText) {
+                    readonlyColumn("Text", CardModel::cardText) {
                         prefWidth = 200.0
                         enableTextWrap()
                     }
@@ -409,11 +427,17 @@ class MyView: View() {
                     }
                     button("Find") {
                         prefWidth = 75.0
-                        action { listOneCardsData(infoTableView.selectionModel.selectedItem.id.toString()) }
+                        action {
+                            if(infoTableView.selectionModel.selectedItem != null)
+                                listOneCardsData(infoTableView.selectionModel.selectedItem.id.toString())
+                        }
                     }
                     button("Delete") {
                         prefWidth = 75.0
-                        action { deleteCard(infoTableView.selectionModel.selectedItem.id.toString()) }
+                        action {
+                            if(infoTableView.selectionModel.selectedItem != null)
+                                deleteCard(infoTableView.selectionModel.selectedItem.id.toString())
+                        }
                     }
                 }
                 right = hbox{
@@ -429,5 +453,6 @@ class MyView: View() {
                 }
             }
         }
+        listAllCardsData()
     }
 }
