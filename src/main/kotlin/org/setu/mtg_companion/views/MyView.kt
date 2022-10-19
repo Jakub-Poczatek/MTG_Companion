@@ -13,6 +13,10 @@ import mu.KotlinLogging
 import org.setu.mtg_companion.controllers.CardController
 import org.setu.mtg_companion.models.CardModel
 
+import org.setu.mtg_companion.utils.cardIsValid
+import org.setu.mtg_companion.utils.stringIsLong
+import org.setu.mtg_companion.utils.stringIsShort
+
 class MyView: View() {
 
     private val cardController = CardController()
@@ -39,7 +43,7 @@ class MyView: View() {
 
     private var currentId: Long = 0
 
-    public fun addCardData(){
+    private fun addCardData(){
         val card = createTempCard()
 
         // Check if card is valid, otherwise log error
@@ -54,16 +58,18 @@ class MyView: View() {
         }
     }
 
-    public fun listAllCardsData(){
+    private fun listAllCardsData(){
+        //resetFields()
         val cards = cardController.findAll()
         cardList = cards
+        infoTableView.refresh()
         infoTableView.items = FXCollections.observableList(cards)
         infoTableView.isVisible = true
         singleInfoTableView.isVisible = false
     }
 
-    public fun listOneCardsData(id: String){
-        if(stringIsLong(id)) {
+    private fun listOneCardsData(id: String){
+        if(stringIsLong(id, logger)) {
             val card = cardController.findOne(id.toLong())
             if (card != null) {
                 infoTableView.isVisible = false
@@ -89,7 +95,7 @@ class MyView: View() {
         } else logger.error("String cannot be converted to Long")
     }
 
-    public fun updateCardData(){
+    private fun updateCardData(){
         val card = createTempCard()
         card.id = currentId
         if(cardIsValid(card)){
@@ -99,15 +105,15 @@ class MyView: View() {
         }
     }
 
-    public fun deleteCard(id: String){
-        if(stringIsLong(id)) {
+    private fun deleteCard(id: String){
+        if(stringIsLong(id, logger)) {
             cardController.delete(id.toLong())
             listAllCardsData()
             search()
         } else logger.error("Invalid Card ID")
     }
 
-    public fun search(){
+    private fun search(){
         val criteria: String = criteriaComboBox.value
         val query: String = searchTextField.text.lowercase()
         val list = ArrayList<CardModel>()
@@ -131,7 +137,7 @@ class MyView: View() {
         infoTableView.items = FXCollections.observableList(list)
     }
 
-    public fun createTempCard(): CardModel{
+    private fun createTempCard(): CardModel{
         emptyToString()
 
         //assign all variables
@@ -159,8 +165,8 @@ class MyView: View() {
         card.type = type
 
         // Check numeric values
-        if(stringIsShort(attack) && stringIsShort(defence) && stringIsShort(neutral) && stringIsShort(white) &&
-            stringIsShort(black) && stringIsShort(red) && stringIsShort(blue) && stringIsShort(green)){
+        if(stringIsShort(attack, logger) && stringIsShort(defence, logger) && stringIsShort(neutral, logger) && stringIsShort(white, logger) &&
+            stringIsShort(black, logger) && stringIsShort(red, logger) && stringIsShort(blue, logger) && stringIsShort(green, logger)){
             if(attack.toShort() in 0..99)
                 card.attack = attack.toShort()
             if(defence.toShort() in 0..99)
@@ -188,27 +194,7 @@ class MyView: View() {
         return card
     }
 
-    public fun stringIsShort(string: String): Boolean{
-        return try {
-            string.toShort()
-            true
-        } catch (e: Exception){
-            logger.error("String cannot be converted to Short")
-            false
-        }
-    }
-
-    public fun stringIsLong(string: String): Boolean{
-        return try{
-            string.toLong()
-            true
-        } catch (e: Exception){
-            logger.error("String cannot be converted to Long")
-            false
-        }
-    }
-
-    public fun resetFields(){
+    private fun resetFields(){
         nameTextField.text = ""
         typeComboBox.value = typeComboBox.items[0]
         attackTextField.text = ""
@@ -222,13 +208,7 @@ class MyView: View() {
         cardTextArea.text = ""
     }
 
-    public fun cardIsValid(card: CardModel): Boolean{
-        return card.name.isNotEmpty() && card.attack > -1 && card.defence > -1 && card.neutralColNum > -1 &&
-                card.whiteColNum > -1 && card.blackColNum > -1 && card.redColNum > -1 && card.blueColNum > -1 &&
-                card.greenColNum > -1 && card.cardText.isNotEmpty()
-    }
-
-    public fun emptyToString(){
+    private fun emptyToString(){
         if(attackTextField.text.isEmpty())
             attackTextField.text = "0"
         if(defenceTextField.text.isEmpty())
@@ -454,6 +434,5 @@ class MyView: View() {
                 }
             }
         }
-        listAllCardsData()
     }
 }
