@@ -17,8 +17,6 @@ class CardController {
             logger.error { "Can't reach database" }
             exitProcess(-1)
         }
-
-        //dummyData()
     }
 
     fun add(card: CardModel){

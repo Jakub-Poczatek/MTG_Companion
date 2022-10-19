@@ -13,6 +13,10 @@ import mu.KotlinLogging
 import org.setu.mtg_companion.controllers.CardController
 import org.setu.mtg_companion.models.CardModel
 
+import org.setu.mtg_companion.utils.cardIsValid
+import org.setu.mtg_companion.utils.stringIsLong
+import org.setu.mtg_companion.utils.stringIsShort
+
 class MyView: View() {
 
     private val cardController = CardController()
@@ -55,15 +59,17 @@ class MyView: View() {
     }
 
     private fun listAllCardsData(){
+        //resetFields()
         val cards = cardController.findAll()
         cardList = cards
+        infoTableView.refresh()
         infoTableView.items = FXCollections.observableList(cards)
         infoTableView.isVisible = true
         singleInfoTableView.isVisible = false
     }
 
     private fun listOneCardsData(id: String){
-        if(stringIsLong(id)) {
+        if(stringIsLong(id, logger)) {
             val card = cardController.findOne(id.toLong())
             if (card != null) {
                 infoTableView.isVisible = false
@@ -100,7 +106,7 @@ class MyView: View() {
     }
 
     private fun deleteCard(id: String){
-        if(stringIsLong(id)) {
+        if(stringIsLong(id, logger)) {
             cardController.delete(id.toLong())
             listAllCardsData()
             search()
@@ -159,8 +165,8 @@ class MyView: View() {
         card.type = type
 
         // Check numeric values
-        if(stringIsShort(attack) && stringIsShort(defence) && stringIsShort(neutral) && stringIsShort(white) &&
-            stringIsShort(black) && stringIsShort(red) && stringIsShort(blue) && stringIsShort(green)){
+        if(stringIsShort(attack, logger) && stringIsShort(defence, logger) && stringIsShort(neutral, logger) && stringIsShort(white, logger) &&
+            stringIsShort(black, logger) && stringIsShort(red, logger) && stringIsShort(blue, logger) && stringIsShort(green, logger)){
             if(attack.toShort() in 0..99)
                 card.attack = attack.toShort()
             if(defence.toShort() in 0..99)
@@ -188,26 +194,6 @@ class MyView: View() {
         return card
     }
 
-    private fun stringIsShort(string: String): Boolean{
-        return try {
-            string.toShort()
-            true
-        } catch (e: Exception){
-            logger.error("String cannot be converted to Short")
-            false
-        }
-    }
-
-    private fun stringIsLong(string: String): Boolean{
-        return try{
-            string.toLong()
-            true
-        } catch (e: Exception){
-            logger.error("String cannot be converted to Long")
-            false
-        }
-    }
-
     private fun resetFields(){
         nameTextField.text = ""
         typeComboBox.value = typeComboBox.items[0]
@@ -220,12 +206,6 @@ class MyView: View() {
         blueColTextField.text = ""
         greenColTextField.text = ""
         cardTextArea.text = ""
-    }
-
-    private fun cardIsValid(card: CardModel): Boolean{
-        return card.name.isNotEmpty() && card.attack > -1 && card.defence > -1 && card.neutralColNum > -1 &&
-                card.whiteColNum > -1 && card.blackColNum > -1 && card.redColNum > -1 && card.blueColNum > -1 &&
-                card.greenColNum > -1 && card.cardText.isNotEmpty()
     }
 
     private fun emptyToString(){
@@ -454,6 +434,5 @@ class MyView: View() {
                 }
             }
         }
-        listAllCardsData()
     }
 }
