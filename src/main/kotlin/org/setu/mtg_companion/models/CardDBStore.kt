@@ -7,14 +7,16 @@ import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.Statement
 
-private val logger = KotlinLogging.logger {}
-private var connection: Connection? = null
-private var statement: Statement? = null
 
 class CardDBStore : CardStore {
 
+    private val logger = KotlinLogging.logger {}
+    private var connection: Connection? = null
+    private var statement: Statement? = null
+
     fun connectToDB(): Boolean {
         return try {
+            // Attempt to connect to server
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mtg_companion", "root", "")
             statement = connection!!.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)
             true
@@ -87,6 +89,7 @@ class CardDBStore : CardStore {
 }
 
 private fun convertToCardModel(rs: ResultSet): List<CardModel>{
+    // Helper method for converting db result sets into CardModel Objects
     val cardList = ArrayList<CardModel>()
     while(rs.next()) {
         cardList.add(CardModel(
@@ -98,5 +101,6 @@ private fun convertToCardModel(rs: ResultSet): List<CardModel>{
             cardText = rs.getString("text")
         ))
     }
+    // Return as List instead of ArrayList
     return cardList.toList()
 }

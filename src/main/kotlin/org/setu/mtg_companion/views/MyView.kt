@@ -7,8 +7,8 @@ import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.layout.Priority
-import tornadofx.*
 import mu.KotlinLogging
+import tornadofx.*
 
 import org.setu.mtg_companion.controllers.CardController
 import org.setu.mtg_companion.models.CardModel
@@ -35,13 +35,14 @@ class MyView: View() {
     private var blueColTextField = TextField()
     private var greenColTextField = TextField()
     private var cardTextArea = TextArea()
-    private var idTextField = TextField()
     private var infoTableView = TableView(observableCardList)
     private var singleInfoTableView = TableView(observableCardList)
     private var criteriaComboBox = ComboBox<String>()
     private var searchTextField = TextField()
 
-    private var currentId: Long = 0
+    //////////
+    // CRUD //
+    //////////
 
     private fun addCardData(){
         val card = createTempCard()
@@ -59,10 +60,10 @@ class MyView: View() {
     }
 
     private fun listAllCardsData(){
-        //resetFields()
+        resetFields()
         val cards = cardController.findAll()
         cardList = cards
-        infoTableView.refresh()
+        // Populate main table and cycle it with the single card table
         infoTableView.items = FXCollections.observableList(cards)
         infoTableView.isVisible = true
         singleInfoTableView.isVisible = false
@@ -72,6 +73,7 @@ class MyView: View() {
         if(stringIsLong(id, logger)) {
             val card = cardController.findOne(id.toLong())
             if (card != null) {
+                // Populate the single card table and cycle it with the main table
                 infoTableView.isVisible = false
                 singleInfoTableView.isVisible = true
                 singleInfoTableView.items = FXCollections.observableList(listOf(card))
@@ -88,16 +90,12 @@ class MyView: View() {
                 greenColTextField.text = card.greenColNum.toString()
                 cardTextArea.text = card.cardText
 
-                idTextField.text = ""
-
-                currentId = id.toLong()
             } else logger.error("Could not find card")
         } else logger.error("String cannot be converted to Long")
     }
 
     private fun updateCardData(){
         val card = createTempCard()
-        card.id = currentId
         if(cardIsValid(card)){
             cardController.update(card)
             listOneCardsData(card.id.toString())
@@ -109,6 +107,7 @@ class MyView: View() {
         if(stringIsLong(id, logger)) {
             cardController.delete(id.toLong())
             listAllCardsData()
+            // run search to return the user to the same screen if they filtered before deleting
             search()
         } else logger.error("Invalid Card ID")
     }
@@ -137,6 +136,11 @@ class MyView: View() {
         infoTableView.items = FXCollections.observableList(list)
     }
 
+    /////////////
+    // Helpers //
+    /////////////
+
+    // Create a temporary default card, assign values from text fields if they pass validation
     private fun createTempCard(): CardModel{
         emptyToString()
 
@@ -208,6 +212,7 @@ class MyView: View() {
         cardTextArea.text = ""
     }
 
+    // Converts any empty numeric fields to 0, avoids parsing exceptions
     private fun emptyToString(){
         if(attackTextField.text.isEmpty())
             attackTextField.text = "0"
@@ -226,6 +231,10 @@ class MyView: View() {
         if(greenColTextField.text.isEmpty())
             greenColTextField.text = "0"
     }
+
+    /////////
+    // GUI //
+    /////////
 
     override val root = hbox {
         // Left pane
@@ -302,6 +311,8 @@ class MyView: View() {
             }
         }
         vbox {
+            // Need to create 2 identical tables, one without text wrapping (main table for listing multiple cards)
+            // and one with text wrapping for displaying single card information
             stackpane {
                 infoTableView = tableview {
                     readonlyColumn("ID", CardModel::id) {
