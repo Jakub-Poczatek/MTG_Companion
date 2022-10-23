@@ -23,6 +23,7 @@ class MyView: View() {
     private val logger = KotlinLogging.logger {}
     private var cardList = listOf<CardModel>()
     private var observableCardList = FXCollections.observableList(ArrayList<CardModel>())
+    private var tempID: Long = 0
 
     private var nameTextField = TextField()
     private var typeComboBox = ComboBox<String>()
@@ -70,6 +71,7 @@ class MyView: View() {
     }
 
     private fun listOneCardsData(id: String){
+        tempID = id.toLong()
         if(stringIsLong(id, logger)) {
             val card = cardController.findOne(id.toLong())
             if (card != null) {
@@ -97,6 +99,7 @@ class MyView: View() {
     private fun updateCardData(){
         val card = createTempCard()
         if(cardIsValid(card)){
+            card.id = tempID
             cardController.update(card)
             listOneCardsData(card.id.toString())
             resetFields()
